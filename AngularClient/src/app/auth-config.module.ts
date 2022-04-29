@@ -5,24 +5,19 @@ import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
   imports: [
     AuthModule.forRoot({
       config: {
-        authority: 'https://b2cdamienbod.b2clogin.com/b2cdamienbod.onmicrosoft.com/B2C_1_sign_in/v2.0',
-        authWellknownEndpointUrl:
-          'https://b2cdamienbod.b2clogin.com/b2cdamienbod.onmicrosoft.com/B2C_1_sign_in/v2.0/.well-known/openid-configuration',
+        authority: 'http://localhost:8080/realms/myrealm',
+        //authWellknownEndpointUrl: 'http://localhost:8080/realms/myrealm/.well-known/openid-configuration',
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
-        clientId: '00b1b58e-6193-4be1-bf15-3a37d6adefaf',
-        scope: 'openid profile https://b2cdamienbod.onmicrosoft.com/ac9b845d-96d3-4410-9923-50ec7bc80db9/access_as_user',
+        clientId: 'oidc-code-pkce-angular',
+        scope: 'openid profile',
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
         ignoreNonceAfterRefresh: true,
         maxIdTokenIatOffsetAllowedInSeconds: 600,
-        issValidationOff: false, // this needs to be true if using a common endpoint in Azure
-        autoUserInfo: false,
-        logLevel: LogLevel.Debug,
-        customParamsAuthRequest: {
-          prompt: 'select_account', // login, consent
-        },
+        autoUserInfo: true,
+        logLevel: LogLevel.Debug
       },
     }),
   ],
