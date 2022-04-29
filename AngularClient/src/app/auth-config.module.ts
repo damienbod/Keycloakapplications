@@ -10,7 +10,7 @@ import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
         clientId: 'oidc-code-pkce-angular',
-        scope: 'openid profile',
+        scope: 'openid profile api-user-access',
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
