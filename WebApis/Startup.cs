@@ -43,6 +43,7 @@ public class Startup
         {
             options.Authority = "http://localhost:8080/realms/myrealm";
             options.Audience = "oidc-code-pkce-angular"; // from keycloak setup
+            options.RequireHttpsMetadata = false; // dev setup problem, not https
 
             options.TokenValidationParameters = new TokenValidationParameters()
             {
