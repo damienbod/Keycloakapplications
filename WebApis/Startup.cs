@@ -3,15 +3,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
 using System;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Logging;
 using WebApis.Authz;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json;
 
 namespace WebApis;
 
@@ -33,15 +35,51 @@ public class Startup
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         IdentityModelEventSource.ShowPII = true;
 
-        services.AddMicrosoftIdentityWebApiAuthentication(
-            Configuration, "AzureB2CUserApi");
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.Authority = "http://localhost:8080/realms/myrealm";
+            options.Audience = "oidc-code-pkce-angular"; // from keycloak setup
 
-        services.AddMicrosoftIdentityWebApiAuthentication(
-            Configuration, "AzureB2CAdminApi", "BearerAdmin");
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ClockSkew = new System.TimeSpan(0, 0, 30)
+            };
+            //options.Events = new JwtBearerEvents()
+            //{
+            //    // TODO return the www-authenticate header
+            //    OnChallenge = context =>
+            //    {
+            //        context.HandleResponse();
+            //        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //        context.Response.ContentType = "application/json";
 
-        services.AddMicrosoftIdentityWebApiAuthentication(
-           Configuration, "AzureB2CAngularApi", "BearerAngularApi");
+            //        // Ensure we always have an error and error description.
+            //        if (string.IsNullOrEmpty(context.Error))
+            //            context.Error = "invalid_token";
+            //        if (string.IsNullOrEmpty(context.ErrorDescription))
+            //            context.ErrorDescription = "This request requires a valid JWT access token to be provided";
 
+            //        // Add some extra context for expired tokens.
+            //        if (context.AuthenticateFailure != null && context.AuthenticateFailure.GetType() == typeof(SecurityTokenExpiredException))
+            //        {
+            //            var authenticationException = context.AuthenticateFailure as SecurityTokenExpiredException;
+            //            context.Response.Headers.Add("x-token-expired", authenticationException?.Expires.ToString("o"));
+            //            context.ErrorDescription = $"The token expired on {authenticationException?.Expires.ToString("o")}";
+            //        }
+
+            //        return context.Response.WriteAsync(JsonSerializer.Serialize(new
+            //        {
+            //            error = context.Error,
+            //            error_description = context.ErrorDescription
+            //        }));
+            //    }
+            //};
+        });
+    
         services.AddCors(options =>
         {
             options.AddPolicy("AllowMyOrigins",
@@ -103,7 +141,7 @@ public class Startup
             options.Filters.Add(new AuthorizeFilter(policy));
         });
 
-        services.AddSingleton<IAuthorizationHandler, IsAdminHandlerUsingIdp>();
+        services.AddSingleton<IAuthorizationHandler, IsAdminHandler>();
 
         services.AddAuthorization(options =>
         {
