@@ -17,7 +17,7 @@ import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
         ignoreNonceAfterRefresh: true,
         maxIdTokenIatOffsetAllowedInSeconds: 600,
         autoUserInfo: true,
-        logLevel: LogLevel.Debug
+       // logLevel: LogLevel.Debug
       },
     }),
   ],

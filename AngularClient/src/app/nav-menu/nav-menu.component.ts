@@ -16,7 +16,7 @@ export class NavMenuComponent implements OnInit {
     this.oidcSecurityService.isAuthenticated$.subscribe(({ isAuthenticated }) => {
       this.isAuthenticated = isAuthenticated;
 
-      console.warn('authenticated: ', isAuthenticated);
+      console.info('authenticated: ', isAuthenticated);
     });
   }
 
